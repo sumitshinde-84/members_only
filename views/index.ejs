@@ -1,11 +1,43 @@
 <!DOCTYPE html>
-<html>
-  <head>
-    <title><%= title %></title>
-    <link rel='stylesheet' href='/stylesheets/style.css' />
-  </head>
-  <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
-  </body>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title></title>
+</head>
+<body>
+  <% if (user) { %>
+    <h1>WELCOME BACK <%= user.username %></h1>
+    <button><a href="/create-message?userId=<%= user._id %>">Create New Message</a></button>
+    <ul>
+      <% messages.forEach((message) => { %>
+        <li>
+          <h4><%= message.title %></h4>
+          <p><%= message.message %></p>
+          <% if (user.is_member || user.is_admin) { %>
+            <p>Author: <%= message.author.firstname %></p>
+            <p>Created At: <%= message.createdAt %></p>
+          <% } %>
+          <% if (user.is_admin) { %>
+            <button><a href="/delete?messageId=<%= message._id %>">Delete message</a></button>
+          <% } %>
+        </li>
+      <% }); %>
+    </ul>
+    <% if (!user.is_member ) { %>
+      <a href="/join-membership?userId=<%= user._id %>">Join Membership</a>
+    <% } %>
+    <a href="/log-out">LOG OUT</a>
+  <% } else { %>
+    <h1>Please log in</h1>
+    <form action="/log-in" method="POST">
+      <label for="username">Username</label>
+      <input name="username" placeholder="Username" type="text" />
+      <label for="password">Password</label>
+      <input name="password" type="password" />
+     
+      <button>Log In</button>
+    </form>
+    <a href="/sign-up">Create an account</a>
+  <% } %>
+</body>
 </html>
