@@ -12,6 +12,9 @@ require("dotenv").config();
 const User = require("./model/user");
 const app = express();
 const bcrypt = require("bcryptjs");
+const compression = require("compression");
+const helmet = require("helmet");
+
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "ejs");
@@ -29,8 +32,23 @@ app.use(logger("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+app.use(compression())
 app.use(express.static(path.join(__dirname, "public")));
+app.use(
+  helmet.contentSecurityPolicy({
+    directives: {
+      "script-src": ["'self'", "code.jquery.com", "cdn.jsdelivr.net"],
+    },
+  })
+);
 
+const RateLimit = require("express-rate-limit");
+const limiter = RateLimit({
+  windowMs: 1 * 60 * 1000, // 1 minute
+  max: 20,
+});
+
+app.use(limiter);
 app.use(session({ secret: "cats", resave: false, saveUninitialized: true }));
 
 passport.use(
